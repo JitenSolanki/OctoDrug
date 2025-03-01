@@ -5,7 +5,6 @@ import axios from 'axios';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
-import MoleculeDrawingPage from './pages/MoleculeDrawingPage';
 import DrugPredictionPage from './pages/DrugPredictionPage';
 import DrugDatabasePage from './pages/DrugDatabasePage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
@@ -13,6 +12,8 @@ import NotFoundPage from './pages/NotFoundPage';
 
 const App: React.FC = () => {
   const [backendMessage, setBackendMessage] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBackendMessage = async () => {
@@ -21,12 +22,18 @@ const App: React.FC = () => {
         setBackendMessage(response.data.message);
       } catch (error) {
         console.error('Error connecting to Flask:', error);
-        setBackendMessage('Failed to connect to backend.');
+        setError('Failed to connect to backend.');
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchBackendMessage();
   }, []);
+
+  if (loading) {
+    return <div>Loading...</div>; // Display loading state
+  }
 
   return (
     <Router>
@@ -34,8 +41,11 @@ const App: React.FC = () => {
         <Navbar />
         <main className="flex-grow">
           <Routes>
-            <Route path="/" element={<HomePage backendMessage={backendMessage} />} />
-            <Route path="/draw" element={<MoleculeDrawingPage />} />
+            <Route
+              path="/"
+              element={<HomePage backendMessage={backendMessage} />}
+            />
+            <Route path="/draw" element={<HirenDrawing />} />
             <Route path="/prediction/:id" element={<DrugPredictionPage />} />
             <Route path="/database" element={<DrugDatabasePage />} />
             <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
